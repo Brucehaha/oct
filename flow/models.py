@@ -43,9 +43,9 @@ class FileUpload(models.Model):
     )
 
     file = models.FileField(upload_to=upload_file_path, blank=False, null=False, verbose_name='CSV/Excel File')
-    filename= models.CharField(max_length=50, unique=True)
+    filename = models.CharField(max_length=50, unique=True)
     date = models.DateTimeField(auto_now_add=True)
-    status = models.IntegerField(max_length=100, choices=STATUS_CHOICE, default=NONE)
+    status = models.IntegerField(choices=STATUS_CHOICE, default=NONE)
     message = models.CharField(max_length=200, null=True)
     task_id = models.CharField(max_length=100, null=True, blank=True)
 
@@ -61,10 +61,13 @@ class Meter(models.Model):
         ● When the reading happened
         ● The filename of the flow file
     """
-    nmi = models.CharField(max_length=10)
+    nmi = models.CharField(max_length=10, blank=True, null=True)
+    registerid = models.CharField(max_length=10, blank=True, null=True)
     meterserialnumber = models.CharField(max_length=12, blank=True, null=True)
+    currentregisterread = models.CharField(max_length=15, blank=True, null=True)
     updatedatetime = models.CharField(max_length=16,blank=True, null=True)
-    filename = models.ForeignKey(FileUpload, on_delete=models.SET_NULL)
+    uom = models.CharField(max_length=5,blank=True, null=True)
+    filename = models.ForeignKey(FileUpload,blank=True, null=True, on_delete=models.SET_NULL)
 
 
 
