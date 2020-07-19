@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 def get_filename_ext(filename):
     base_name = os.path.basename(filename)
     name, ext = os.path.splitext(base_name)
+    print(ext)
     return name, ext
 
 
@@ -26,7 +27,7 @@ def upload_file_path(instance, filename):
     file_rand = random.randint(1, 1000000000)
     name, ext = get_filename_ext(filename)
     foldername = date.today().strftime('%Y%b%d')
-    full_filename = 'csv/{foldername}/{name}_{file_rand}.{ext}'.format(
+    full_filename = 'csv/{foldername}/{name}_{file_rand}{ext}'.format(
         foldername=foldername,
         name=name,
         file_rand=file_rand,
@@ -42,7 +43,7 @@ def read_file(filenamme):
     :return: np.read_csv or np.read_excel
     """
     filename, ext = get_filename_ext(filenamme)
-    if ext == "csv":
+    if ext == ".csv":
         return filename, pd.read_csv
     else:
         return filename, pd.read_excel

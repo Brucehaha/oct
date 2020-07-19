@@ -15,7 +15,7 @@ class Command(BaseCommand):
         for p in options['path']:
             name, ext = get_filename_ext(p)
             target_path = upload_file_path(None, p)
-            if not os.path.exists(target_path):
+            if os.path.exists(target_path):
                 self.stdout.write(self.style.ERROR('File "%s" was uploaded already' % name))
             else:
 
