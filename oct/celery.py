@@ -15,6 +15,14 @@ app = Celery('oct')
 #   should have a `CELERY_` prefix.
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
+# #comment back below code if you need a beat task
+# app.conf.beat_schedule = {
+#     # Executes every Monday morning at 7:30 a.m.
+#     'every-20-second': {
+#         'task': 'flow.tasks.save_file_to_database',
+#         'schedule': 59,
+#     },
+# }
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
 

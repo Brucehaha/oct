@@ -1,9 +1,9 @@
+from django.db import transaction
 import os
 import random
 from datetime import date
 import pandas as pd
 import logging
-
 
 logger = logging.getLogger(__name__)
 
@@ -22,9 +22,10 @@ def upload_file_path(instance, filename):
     :param unique: True if allow file upload only one time
     :return:
     """
-
+    # could use uuid4
     file_rand = random.randint(1, 1000000000)
     name, ext = get_filename_ext(filename)
+
     foldername = date.today().strftime('%Y%b%d')
     file_path = 'csv/%s/' % foldername
     filename = '{name}_{file_rand}{ext}'.format(
@@ -43,14 +44,14 @@ def read_file(filenamme):
     :param filenamme: file path to proccess
     :return: np.read_csv or np.read_excel
     """
-    filename, ext = get_filename_ext(filenamme)
+    _, ext = get_filename_ext(filenamme)
     if ext == ".csv":
-        return filename, pd.read_csv
+        return  pd.read_csv
     else:
-        return filename, pd.read_excel
+        return  pd.read_excel
 
 
-def import_to_database(filename, chunksize=3, usecols=[1, 3, 6, 13, 14, 19], encoding='utf8'):
+def import_to_database(file, chunksize=3, usecols=[1, 3, 6, 13, 14, 19], encoding='utf8'):
     """
 
     :param filename: file path
@@ -59,30 +60,44 @@ def import_to_database(filename, chunksize=3, usecols=[1, 3, 6, 13, 14, 19], enc
     :param encoding: encoding type, could change if has encoding error
     :return:
     """
-    from .models import Meter
-    filename, readfile = read_file(filename)
-    objs =[]
-    try:
-        df = readfile(
-            filename,
-            skiprows=1,
-            chunksize=chunksize,
-            usecols=usecols,
-            names=['nmi', 'registerid', 'meterserialnumber', 'CurrentRegisterRead', 'CurrentRegisterReadDateTime', 'uom'],
-            dtype='string',
-            encoding=encoding
-        )
+    from .models import Meter, FileUpload
 
-        for chunk in df:
-            for index, row in chunk.iterrows():
-                if not isinstance(row[0], pd._libs.missing.NAType):
-                    meter = Meter
-                    meter.file.name = filename
-                    meter.filename = filename
-                    objs = objs.append(meter)
-            Meter.objects.bulk_create(objs)
+    readfile = read_file(file.file.name)
+
+    try:
+        # roll back if any error
+        with transaction.atomic():
+            df = readfile(
+                file.file.name,
+                skiprows=1,
+                chunksize=chunksize,
+                usecols=usecols,
+                names=['nmi', 'registerid', 'meterserialnumber', 'CurrentRegisterRead', 'CurrentRegisterReadDateTime', 'uom'],
+                dtype='string',
+                encoding=encoding
+            )
+            for chunk in df:
+                objs = []
+                for index, row in chunk.iterrows():
+                    if not isinstance(row[0], pd._libs.missing.NAType):
+                        objs.append(Meter(
+                            nmi=row[0],
+                            registerid=row[1],
+                            meterserialnumber=row[2],
+                            currentregisterread=row[3],
+                            updatedatetime=row[4],
+                            uom=row[5],
+                            filename=file
+                        ))
+                Meter.objects.bulk_create(objs)
     except UnicodeDecodeError as e:
+        file.message = e
+        file.status = FileUpload.ERROR
+        file.save()
         raise UnicodeDecodeError(e)
     except Exception as e:
+        file.message = e
+        file.status = FileUpload.ERROR
+        file.save()
         logger.error(e)
 
