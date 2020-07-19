@@ -118,17 +118,22 @@ USE_L10N = True
 USE_TZ = True
 
 
+broker_dir = os.path.join(BASE_DIR, '.broker')
+
+CELERY_BROKER_URL = 'filesystem://'
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    "data_folder_in": os.path.join(broker_dir, "out"),
+    "data_folder_out": os.path.join(broker_dir, "out"),
+    "data_folder_processed": os.path.join(broker_dir, "processed"),
+}
+try:
+    os.makedirs(CELERY_BROKER_TRANSPORT_OPTIONS['data_folder_in'])
+    os.makedirs(CELERY_BROKER_TRANSPORT_OPTIONS['data_folder_processed'])
+except:
+    pass
 # celery setup, move to redis or rabbitmq for production
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'
-CELERY_BROKER_URL = 'memory://localhost/'
-# django setting.
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'my_cache_table',
-    }
-}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
@@ -140,6 +145,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static") # python manage.py collectstatic 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -147,7 +153,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': '%s/debug.log' % BASE_DIR,
+            'filename': os.path.join(BASE_DIR, 'debug.log'),
         },
     },
     'loggers': {
