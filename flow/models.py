@@ -43,8 +43,8 @@ class Meter(models.Model):
     nmi = models.CharField(max_length=10, blank=True, null=True)
     registerid = models.CharField(max_length=10, blank=True, null=True, verbose_name=_('Register ID'))
     meterserialnumber = models.CharField(max_length=12, blank=True, null=True, verbose_name=_("Meter serial Number"))
-    currentregisterread = models.CharField(max_length=15, blank=True, null=True, verbose_name=_('Update date time'))
-    updatedatetime = models.CharField(max_length=16,blank=True, null=True)
+    currentregisterread = models.CharField(max_length=15, blank=True, null=True, verbose_name=_('Current Register Read'))
+    updatedatetime = models.CharField(max_length=16,blank=True, null=True, verbose_name=_('Update date time'))
     uom = models.CharField(max_length=5,blank=True, null=True, verbose_name=_('unit of measurement'))
     filename = models.ForeignKey(FileUpload,blank=True, null=True, on_delete=models.SET_NULL)
 
