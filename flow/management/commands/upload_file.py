@@ -31,4 +31,4 @@ class Command(BaseCommand):
                     file_upload_obj.filename = name
                     file_upload_obj.file.name = target_path
                     file_upload_obj.save()
-            self.stdout.write(self.style.SUCCESS('Success!'))
+                self.stdout.write(self.style.SUCCESS('Success!'))
