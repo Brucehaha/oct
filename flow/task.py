@@ -14,6 +14,12 @@ def save_file_to_database():
     file = FileUpload.objects.filter(status=FileUpload.NONE)
     try:
         import_to_database(file.file.name)
+    except UnicodeDecodeError as e:
+        try:
+            # could add more encoding typeå
+            import_to_database(file.file.name, encoding='iso-8859-1')
+        except:
+            logger.error(e)
     except Exception as e:
         logger.error(e)
 

@@ -48,10 +48,18 @@ def read_file(filenamme):
         return filename, pd.read_excel
 
 
-def import_to_database(filename, chunksize=3, usecols=[1, 3, 6, 13, 14, 19]):
+def import_to_database(filename, chunksize=3, usecols=[1, 3, 6, 13, 14, 19], encoding='utf8'):
+    """
+
+    :param filename: file path
+    :param chunksize: lazy read large file by chunk
+    :param usecols: columns used for importing to database
+    :param encoding: encoding type, could change if has encoding error
+    :return:
+    """
     from .models import Meter
-    readfile = read_file(filename)
-    objs =list
+    filename, readfile = read_file(filename)
+    objs =[]
     try:
         df = readfile(
             filename,
@@ -59,7 +67,9 @@ def import_to_database(filename, chunksize=3, usecols=[1, 3, 6, 13, 14, 19]):
             chunksize=chunksize,
             usecols=usecols,
             names=['nmi', 'registerid', 'meterserialnumber', 'CurrentRegisterRead', 'CurrentRegisterReadDateTime', 'uom'],
-            dtype='string', )
+            dtype='string',
+            encoding=encoding
+        )
 
         for chunk in df:
             for index, row in chunk.iterrows():
@@ -69,6 +79,8 @@ def import_to_database(filename, chunksize=3, usecols=[1, 3, 6, 13, 14, 19]):
                     meter.filename = filename
                     objs = objs.append(meter)
             Meter.objects.bulk_create(objs)
+    except UnicodeDecodeError as e:
+        raise UnicodeDecodeError(e)
     except Exception as e:
         logger.error(e)
 
