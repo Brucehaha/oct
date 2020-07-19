@@ -8,6 +8,11 @@ import shutil
 
 
 class Command(BaseCommand):
+    """
+    copy large file directly to media_root, and store the absolute url to
+    FileUpload project. After, celery task read csv file to Meter table
+    """
+
     help = 'Copy file to web database'
 
     def add_arguments(self, parser):
@@ -28,9 +33,11 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR('File "%s" was uploaded already' % name))
             else:
                 try:
+                    # copy file to media root
                     shutil.copy2(p, target_path)
                 except Exception as e:
                     raise CommandError(e)
+                # save absolute url to FileUpload object
                 file_upload_obj = FileUpload()
                 file_upload_obj.filename = name
                 file_upload_obj.file.name = target_path
