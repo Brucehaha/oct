@@ -1,4 +1,3 @@
-from .models import Meter
 import os
 import random
 from datetime import date
@@ -50,6 +49,7 @@ def read_file(filenamme):
 
 
 def import_to_database(filename, chunksize=3, usecols=[1, 3, 6, 13, 14, 19]):
+    from .models import Meter
     readfile = read_file(filename)
     objs =list
     try:
