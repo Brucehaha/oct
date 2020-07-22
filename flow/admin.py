@@ -11,7 +11,7 @@ admin.site.register(FileUpload, FileUploadAdmin)
 
 class MeterAdmin(admin.ModelAdmin):
     list_display = ('nmi', 'registerid','meterserialnumber', 'currentregisterread', 'updatedatetime', 'uom', 'filename')
-    search_fields = ['nmi', 'meterserialnumber']
+    search_fields = ['currentregisterread', 'updatedatetime', 'nmi', 'meterserialnumber']
 
 
 admin.site.register(Meter, MeterAdmin)

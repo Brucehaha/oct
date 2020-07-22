@@ -28,5 +28,8 @@ and read and write data by chunk to database for large data set. Chunksize is ed
 7. Assuming that the data file is not only .csv, maybe other excel format. Here I use pandas.read_csv
 and pandas.read_excel(could add more)
 8. Assuming that the file encoding by default is utf8 or iso-8859-1.
+9. Assuming that the row with RecordIndicator value equal to 250 is required and valid to store in database and 
+row with RecordIndicator value == 250 has uniform order and structure.
+ 
 
 

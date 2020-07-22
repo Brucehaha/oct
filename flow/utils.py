@@ -51,7 +51,7 @@ def read_file(filenamme):
         return  pd.read_excel
 
 
-def import_to_database(file, chunksize=3, usecols=[1, 3, 6, 13, 14, 19], encoding='utf8'):
+def import_to_database(file, chunksize=3, usecols=[0, 1, 3, 6, 13, 14, 19], encoding='utf8'):
     """
 
     :param filename: file path
@@ -72,21 +72,21 @@ def import_to_database(file, chunksize=3, usecols=[1, 3, 6, 13, 14, 19], encodin
                 skiprows=1,
                 chunksize=chunksize,
                 usecols=usecols,
-                names=['nmi', 'registerid', 'meterserialnumber', 'CurrentRegisterRead', 'CurrentRegisterReadDateTime', 'uom'],
+                names=['indicator','nmi', 'registerid', 'meterserialnumber', 'CurrentRegisterRead', 'CurrentRegisterReadDateTime', 'uom'],
                 dtype='string',
                 encoding=encoding
             )
             for chunk in df:
                 objs = []
                 for index, row in chunk.iterrows():
-                    if not isinstance(row[0], pd._libs.missing.NAType):
+                    if not isinstance(row[0], pd._libs.missing.NAType) and row[0] == '250': # Assuming NMI13 file only need indicator with value 250 to database
                         objs.append(Meter(
-                            nmi=row[0],
-                            registerid=row[1],
-                            meterserialnumber=row[2],
-                            currentregisterread=row[3],
-                            updatedatetime=row[4],
-                            uom=row[5],
+                            nmi=row[1],
+                            registerid=row[2],
+                            meterserialnumber=row[3],
+                            currentregisterread=row[4],
+                            updatedatetime=row[5],
+                            uom=row[6],
                             filename=file
                         ))
                 Meter.objects.bulk_create(objs)
